@@ -1,73 +1,106 @@
-# Desktop clap → Jarvis-style welcome
+# Jarvis HUD
 
-Python script that listens to your default microphone and runs a **double-clap** welcome flow (Spotify, Chrome windows, ElevenLabs voice, Cursor). See constants at the top of `jarvis.py` for behavior and tuning.
+A futuristic desktop AI assistant inspired by the cinematic feel of JARVIS and the calm premium motion of modern Apple-like voice interfaces. Built with Python and PySide6, this project focuses on a sleek sci-fi HUD with a glowing central core, animated listening waveform, dark glass aesthetic, and a clean minimal experience.
 
-## Setup
+## ✨ Features
 
-From this project directory:
+- Animated central JARVIS reactor core
+- Live waveform listening and responding effect
+- Premium dark futuristic HUD styling
+- Startup boot sequence and cinematic UI transitions
+- Real-time system status and clock display
+- Weather and project activity-related UI support
+- Minimal interface focused on the main assistant experience
+- Easy to extend for AI workflows and future smart assistant features
 
-```bash
-python -m pip install -r requirements.txt
+## 🧩 Project files
+
+- `jarvis_hud.py` – main cinematic desktop GUI
+- `jarvis_agentic.py` – agent-style workflow runtime
+- `jarvis.py` – clap-based personal assistant script
+- `jarvis_pro.py` – voice-driven assistant version
+- `jarvis_max.py` – expanded assistant variant
+- `requirements.txt` – base project requirements
+- `requirements_pro.txt` – assistant / voice-related dependencies
+- `requirements_ui.txt` – PySide6 and UI dependencies
+- `jarvis_data/` – data files for memory, tasks, and activity
+- `env.example.txt` – example environment configuration
+
+## 🚀 Setup
+
+Use Python 3.10+ and install the dependencies:
+
+```powershell
+cd "C:\Python313\jarvis-main\jarvis-main"
+python -m pip install -r requirements.txt -r requirements_pro.txt -r requirements_ui.txt
 ```
 
-## Environment variables
+## ⚙️ Environment
 
-The script loads a **`.env` file** in the same folder as `jarvis.py` (via `python-dotenv`). You can also set variables in the shell.
+Create a `.env` file in the project folder using the sample values from `env.example.txt`.
 
-### Required (ElevenLabs welcome line)
-
-| Variable | Purpose |
-| -------- | ------- |
-| `ELEVENLABS_API_KEY` | API key from [ElevenLabs](https://elevenlabs.io). |
-| `ELEVENLABS_VOICE_ID` | Voice ID from the ElevenLabs app (My Voices / library). |
-
-Without these, the welcome speech is skipped (other actions may still run).
-
-### Optional
-
-| Variable | Purpose |
-| -------- | ------- |
-| `ELEVENLABS_MODEL_ID` | TTS model (default in code: `eleven_multilingual_v2`). |
-| `ELEVENLABS_OUTPUT_FORMAT` | e.g. `pcm_24000` (must match playback expectations). |
-| `ELEVENLABS_PCM_SAMPLE_RATE` | Override PCM sample rate if it differs from the format name. |
-| `JARVIS_WELCOME_CACHE_DIR` | Custom folder for cached welcome WAV (default: `.cache/jarvis_welcome/` under the project). |
-| `JARVIS_INPUT_DEVICE` | Optional mic override: **integer** index or **substring** of the device name. If unset, the script uses the Windows default; when that mic is silent, it auto-picks the loudest working input. List devices: `python -c "import sounddevice as sd; print(sd.query_devices())"`. |
-| `CLAUDE_CODE_URL` | URL opened for Claude in Chrome (default: new chat). |
-| `TASARADAR_URL` | URL opened for Tasaradar in Chrome (default: `https://tasaradar.com`). `BINANCE_BTC_URL` is still read as a fallback if set. |
-| `CHROME_NEW_WINDOW_WAIT_S` | Seconds to wait for a new Chrome window on Windows (default `25`). |
-| `CHROME_WINDOW_WIDTH` / `CHROME_WINDOW_HEIGHT` | Windowed Chrome size when not fullscreen. |
-
-Example `.env`:
+Example:
 
 ```env
+JARVIS_USER_NAME=Your Name
+JARVIS_DEFAULT_CITY=Colombo
 ELEVENLABS_API_KEY=your_key_here
 ELEVENLABS_VOICE_ID=your_voice_id_here
 ```
 
-## Run
+## ▶️ Run
 
-```bash
-python jarvis.py
+Launch the main HUD:
+
+```powershell
+cd "C:\Python313\jarvis-main\jarvis-main"
+python .\jarvis_hud.py
 ```
 
-Allow the microphone if Windows prompts you. Stop with **Ctrl+C**.
+Run the assistant logic:
 
-## Tuning
+```powershell
+cd "C:\Python313\jarvis-main\jarvis-main"
+python .\jarvis_agentic.py
+```
 
-Edit the constants at the top of `jarvis.py`:
+Run the original clap-based version:
 
-| Constant      | Effect                                                            |
-| ------------- | ----------------------------------------------------------------- |
-| `SPIKE_RATIO` | Increase if you get false triggers; decrease if claps are missed. |
-| `COOLDOWN_S`  | Minimum time between two logged claps.                            |
-| `BLOCK_MS`    | Larger = slightly less CPU, a bit less precise timing.            |
-| `MIN_RMS`     | Floor on how loud a block must be (helps in very quiet rooms).  |
-| `SAMPLE_RATE` | Try `48000` if your device does not like `44100`.                 |
+```powershell
+cd "C:\Python313\jarvis-main\jarvis-main"
+python .\jarvis.py
+```
 
-## Troubleshooting
+## 🎯 Design direction
 
-- **Wrong or quiet mic:** On startup the script probes your default Windows input. If it is silent, it **auto-selects** the loudest working mic. To force a specific device, set `JARVIS_INPUT_DEVICE` in `.env` (index or name substring from `sounddevice.query_devices()`).
-- **PortAudio / audio errors:** Update audio drivers or try another `SAMPLE_RATE`.
-- **No reaction to claps:** Lower `SPIKE_RATIO` slightly or speak/clap closer to the mic.
-- **Spam logs:** Raise `SPIKE_RATIO` or `COOLDOWN_S`.
-- **No welcome speech:** Set `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` in `.env` and restart the terminal so variables load.
+This project is intentionally designed around a luxury sci-fi aesthetic:
+
+- premium dark UI palette
+- minimal but polished layout
+- animated central core as the visual focal point
+- cinematic startup and listening behavior
+- less dashboard clutter, more assistant presence
+
+## 🛠️ Troubleshooting
+
+If the GUI does not launch:
+
+```powershell
+python -c "import PySide6; print('PySide6 OK')"
+```
+
+If PySide6 is missing, install the UI dependencies again:
+
+```powershell
+python -m pip install -r requirements_ui.txt
+```
+
+If the assistant is not detecting audio properly, confirm your Windows microphone settings and ensure the correct input device is selected.
+
+## 📜 License
+
+This project is intended for personal and experimental use. If you plan to distribute or publish it, add a license file that matches your preferred usage terms.
+
+## 🧠 GitHub note
+
+This repository is structured as a personal AI assistant / desktop HUD prototype and is ready to be extended with more voice interaction, workflow automation, and advanced smart assistant features.

@@ -1,45 +1,77 @@
 # Jarvis HUD
 
-A futuristic desktop AI assistant inspired by the cinematic feel of JARVIS and the calm premium motion of modern Apple-like voice interfaces. Built with Python and PySide6, this project focuses on a sleek sci-fi HUD with a glowing central core, animated listening waveform, dark glass aesthetic, and a clean minimal experience.
+A futuristic desktop AI assistant inspired by the cinematic feel of JARVIS and the premium motion of modern Apple-like voice interfaces. Built with Python and PySide6, this project focuses on a sleek sci-fi HUD with a glowing central core, animated listening waveform, startup boot sequence, dark glass styling, and a clean minimal interface.
 
-## ✨ Features
+## Overview
+
+This project is a personal desktop assistant prototype built to feel like a premium AI control surface. It combines a cinematic visual shell with assistant-style workflows, voice-driven behavior, and a minimal futuristic dashboard experience.
+
+## Main files
+
+- `jarvis_hud.py` – main desktop HUD interface
+- `jarvis_agentic.py` – assistant runtime / agent workflow script
+- `jarvis.py` – original clap-based assistant
+- `jarvis_pro.py` – voice assistant variant
+- `jarvis_max.py` – expanded assistant variant
+- `requirements.txt` – base Python dependencies
+- `requirements_pro.txt` – assistant / voice dependencies
+- `requirements_ui.txt` – UI dependencies for PySide6
+- `jarvis_data/` – tasks, memory, approvals, activity data
+- `env.example.txt` – sample environment variables
+- `start_jarvis_hud.bat` – quick launcher for Windows
+
+## Features
 
 - Animated central JARVIS reactor core
-- Live waveform listening and responding effect
-- Premium dark futuristic HUD styling
-- Startup boot sequence and cinematic UI transitions
-- Real-time system status and clock display
-- Weather and project activity-related UI support
-- Minimal interface focused on the main assistant experience
-- Easy to extend for AI workflows and future smart assistant features
+- Live waveform listening / responding effect
+- Dark futuristic premium HUD styling
+- Startup boot animation and status flow
+- Real-time clock and system status display
+- Weather and activity support
+- Minimal but cinematic interface
+- Easy to extend for AI agent workflows and automation
 
-## 🧩 Project files
+## Project structure
 
-- `jarvis_hud.py` – main cinematic desktop GUI
-- `jarvis_agentic.py` – agent-style workflow runtime
-- `jarvis.py` – clap-based personal assistant script
-- `jarvis_pro.py` – voice-driven assistant version
-- `jarvis_max.py` – expanded assistant variant
-- `requirements.txt` – base project requirements
-- `requirements_pro.txt` – assistant / voice-related dependencies
-- `requirements_ui.txt` – PySide6 and UI dependencies
-- `jarvis_data/` – data files for memory, tasks, and activity
-- `env.example.txt` – example environment configuration
+```text
+jarvis-main/
+├── jarvis_hud.py
+├── jarvis_agentic.py
+├── jarvis.py
+├── jarvis_pro.py
+├── jarvis_max.py
+├── requirements.txt
+├── requirements_pro.txt
+├── requirements_ui.txt
+├── env.example.txt
+├── .env
+├── jarvis_data/
+├── README.md
+├── start_jarvis_hud.bat
+└── JARVIS_HUD_SETUP.txt
+```
 
-## 🚀 Setup
+## Step-by-step setup
 
-Use Python 3.10+ and install the dependencies:
+### 1) Open PowerShell in the project folder
 
 ```powershell
 cd "C:\Python313\jarvis-main\jarvis-main"
+```
+
+### 2) Install dependencies
+
+```powershell
 python -m pip install -r requirements.txt -r requirements_pro.txt -r requirements_ui.txt
 ```
 
-## ⚙️ Environment
+### 3) Create the environment file
 
-Create a `.env` file in the project folder using the sample values from `env.example.txt`.
+```powershell
+copy .\env.example.txt .\.env
+```
 
-Example:
+Then edit `.env` and add your values:
 
 ```env
 JARVIS_USER_NAME=Your Name
@@ -48,59 +80,85 @@ ELEVENLABS_API_KEY=your_key_here
 ELEVENLABS_VOICE_ID=your_voice_id_here
 ```
 
-## ▶️ Run
+### 4) Verify the UI is installed
 
-Launch the main HUD:
+```powershell
+python -c "import PySide6; print('PySide6 OK')"
+```
+
+If that prints `PySide6 OK`, the GUI dependencies are available.
+
+### 5) Run the main Jarvis HUD
+
+```powershell
+python .\jarvis_hud.py
+```
+
+### 6) Optional: run the assistant logic separately
+
+```powershell
+python .\jarvis_agentic.py
+```
+
+### 7) Optional: run the original clap-based assistant
+
+```powershell
+python .\jarvis.py
+```
+
+## Quick start
+
+If everything is already installed:
 
 ```powershell
 cd "C:\Python313\jarvis-main\jarvis-main"
 python .\jarvis_hud.py
 ```
 
-Run the assistant logic:
+## Important note
 
-```powershell
-cd "C:\Python313\jarvis-main\jarvis-main"
-python .\jarvis_agentic.py
-```
+The main visual app is `jarvis_hud.py`. If you want the premium desktop Jarvis interface, launch that file. The other scripts are supporting assistant variants and may be used for different behavior or testing.
 
-Run the original clap-based version:
+## Design direction
 
-```powershell
-cd "C:\Python313\jarvis-main\jarvis-main"
-python .\jarvis.py
-```
+This project is intentionally designed to feel like:
 
-## 🎯 Design direction
+- a premium AI assistant control panel
+- a futuristic sci-fi command center
+- a cinematic voice interface instead of a cluttered dashboard
 
-This project is intentionally designed around a luxury sci-fi aesthetic:
+The goal is to keep the experience clean, elegant, and visually impressive while still being usable as a desktop assistant.
 
-- premium dark UI palette
-- minimal but polished layout
-- animated central core as the visual focal point
-- cinematic startup and listening behavior
-- less dashboard clutter, more assistant presence
+## Troubleshooting
 
-## 🛠️ Troubleshooting
-
-If the GUI does not launch:
+### GUI not opening
 
 ```powershell
 python -c "import PySide6; print('PySide6 OK')"
 ```
 
-If PySide6 is missing, install the UI dependencies again:
+If PySide6 is missing:
 
 ```powershell
 python -m pip install -r requirements_ui.txt
 ```
 
-If the assistant is not detecting audio properly, confirm your Windows microphone settings and ensure the correct input device is selected.
+### Audio or microphone not working
 
-## 📜 License
+- Check Windows microphone settings
+- Confirm the default input device is active
+- Retry after restarting the app
 
-This project is intended for personal and experimental use. If you plan to distribute or publish it, add a license file that matches your preferred usage terms.
+### Missing modules
 
-## 🧠 GitHub note
+```powershell
+python -m pip install -r requirements.txt -r requirements_pro.txt -r requirements_ui.txt
+```
 
-This repository is structured as a personal AI assistant / desktop HUD prototype and is ready to be extended with more voice interaction, workflow automation, and advanced smart assistant features.
+## License
+
+This project is intended for personal and experimental use. Add a license file if you plan to share or publish it publicly beyond local use.
+
+## GitHub project note
+
+This repository is structured as a personal AI assistant / desktop HUD prototype and is ready to be extended with voice interactions, automation, workflows, and more advanced assistant features.

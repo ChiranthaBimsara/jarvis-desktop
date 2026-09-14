@@ -1,6 +1,10 @@
 # Jarvis HUD
 
-A futuristic desktop AI assistant inspired by the cinematic feel of JARVIS and the premium motion of modern Apple-like voice interfaces. Built with Python and PySide6, this project focuses on a sleek sci-fi HUD with a glowing central core, animated listening waveform, startup boot sequence, dark glass styling, and a clean minimal interface.
+A futuristic desktop AI assistant inspired by JARVIS and premium Apple-style voice interfaces.
+
+Built with Python and PySide6, this project delivers a sleek sci-fi HUD with a glowing central core, animated listening waveform, startup boot sequence, dark glass styling, and a clean minimal experience.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Overview
 
@@ -157,7 +161,7 @@ python -m pip install -r requirements.txt -r requirements_pro.txt -r requirement
 
 ## License
 
-This project is intended for personal and experimental use. Add a license file if you plan to share or publish it publicly beyond local use.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## GitHub project note
 

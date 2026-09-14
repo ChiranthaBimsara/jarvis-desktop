@@ -1,0 +1,44 @@
+JARVIS HUD SETUP
+
+1. Put these files in:
+   C:\Python313\jarvis-main\jarvis-main\
+
+   jarvis_hud.py
+   jarvis_agentic.py
+   jarvis_max.py
+   jarvis_pro.py
+   .env
+
+2. Install UI packages:
+
+   python -m pip install -r requirements_ui.txt
+
+3. Start the HUD:
+
+   python jarvis_hud.py
+
+   or double-click:
+
+   start_jarvis_hud.bat
+
+4. Click START JARVIS in the bottom-right.
+   The UI launches jarvis_agentic.py and streams its output.
+
+REAL-TIME UI FEATURES
+- animated boot screen
+- animated central JARVIS core
+- animated listening/responding waveform
+- CPU/RAM/battery gauges
+- weather
+- tasks
+- approvals
+- memories
+- activity log
+- quick launch buttons
+- live Jarvis terminal feed
+
+The HUD reads:
+   jarvis_data\tasks.json
+   jarvis_data\memory.json
+   jarvis_data\approvals.json
+   jarvis_data\activity.jsonl

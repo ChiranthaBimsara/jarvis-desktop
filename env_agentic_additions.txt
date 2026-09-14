@@ -1,0 +1,8 @@
+# Add to your existing .env
+JARVIS_USER_NAME=Chirantha Bimsara
+JARVIS_USER_AGE=24
+JARVIS_DEFAULT_CITY=Colombo
+
+# Optional local AI brain
+JARVIS_USE_OLLAMA=false
+JARVIS_OLLAMA_MODEL=llama3.2:3b

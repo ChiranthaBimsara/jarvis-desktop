@@ -1,0 +1,3 @@
+# No new mandatory Python packages beyond jarvis_pro.py / jarvis_max.py.
+# Optional local AI brain: install Ollama separately and run:
+# ollama pull llama3.2:3b

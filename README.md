@@ -1,212 +1,178 @@
-# Jarvis HUD
+# Jarvis Desktop
 
-A futuristic desktop AI assistant inspired by JARVIS and premium Apple-style voice interfaces.
-
-Built with Python and PySide6, this project delivers a sleek sci-fi HUD with a glowing central core, animated listening waveform, startup boot sequence, dark glass styling, and a clean minimal experience.
+A sci-fi desktop command center built with Python and PySide6. Monitor your system, manage tasks, capture ideas, and run focus sessions around an animated JARVIS reactor.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Overview
+## Dashboard features
 
-This project is a personal desktop assistant prototype built to feel like a premium AI control surface. It combines a cinematic visual shell with assistant-style workflows, voice-driven behavior, and a minimal futuristic dashboard experience.
+| Feature | What it does |
+| --- | --- |
+| Animated HUD | Reactor animation, boot sequence, live clock, and assistant status |
+| Command palette | Search actions with `Ctrl+K`, select with arrow keys, and run with Enter |
+| System radar | CPU, RAM, download, and upload graphs with 60 samples, refreshed every 1.5 seconds |
+| Device health | Disk usage, free space, operating system, architecture, and host uptime |
+| Task controls | Add, complete, and reopen tasks with local persistence |
+| Activity search | Search the latest 500 event lines by text, type, or status |
+| Focus Protocol | 25-minute focus, 50-minute deep work, and 5-minute break presets |
+| Scratchpad | Save notes locally, with an unsaved-changes prompt on exit |
+| Quick launch | Open ChatGPT, GitHub, and YouTube in your default browser |
+| Fullscreen | Toggle with `F11` or the header button |
+| Voice controls | Start and stop the optional assistant runtime and view its terminal output |
 
-## Main files
+The dashboard, telemetry, tasks, notes, and focus timer work without API credentials. Voice interaction is a separate optional workflow that needs audio hardware and additional dependencies.
 
-- `jarvis_hud.py` – main desktop HUD interface
-- `jarvis_agentic.py` – assistant runtime / agent workflow script
-- `jarvis.py` – original clap-based assistant
-- `jarvis_pro.py` – voice assistant variant
-- `jarvis_max.py` – expanded assistant variant
-- `requirements.txt` – base Python dependencies
-- `requirements_pro.txt` – assistant / voice dependencies
-- `requirements_ui.txt` – UI dependencies for PySide6
-- `jarvis_data/` – tasks, memory, approvals, activity data
-- `env.example.txt` – sample environment variables
-- `start_jarvis_hud.bat` – quick launcher for Windows
+## Get started on Windows
 
-## Features
+Use Python 3.12 for the development environment tested in this project.
 
-- Command palette (`Ctrl+K`) for task entry, activity search, refresh, voice controls, and clearing the live feed
-- System radar with CPU, RAM, download, and upload histories (60 samples, updated every 1.5 seconds)
-- Task controls to add, complete, and reopen tasks, persisted in `jarvis_data/tasks.json`
-- Searchable activity by text, event type, or status, showing the latest 500 events
-- Animated central JARVIS reactor core
-- Live waveform listening / responding effect
-- Dark futuristic premium HUD styling
-- Startup boot animation and status flow
-- Real-time clock and system status display
-- Weather and activity support
-- Minimal but cinematic interface
-- Easy to extend for AI agent workflows and automation
-
-## Project structure
-
-```text
-jarvis-main/
-├── jarvis_hud.py
-├── jarvis_agentic.py
-├── jarvis.py
-├── jarvis_pro.py
-├── jarvis_max.py
-├── requirements.txt
-├── requirements_pro.txt
-├── requirements_ui.txt
-├── env.example.txt
-├── .env
-├── jarvis_data/
-├── README.md
-├── start_jarvis_hud.bat
-└── JARVIS_HUD_SETUP.txt
-```
-
-## Step-by-step setup
-
-### 1) Open PowerShell in the project folder
+### 1. Get the code
 
 ```powershell
-cd "C:\Python313\jarvis-main\jarvis-main"
+git clone https://github.com/ChiranthaBimsara/jarvis-desktop.git
+cd jarvis-desktop
 ```
 
-### 2) Install dependencies
+Already have the repository? Open its folder and run `git pull` to get the latest dashboard.
+
+### 2. Create a virtual environment
 
 ```powershell
-python -m pip install -r requirements.txt -r requirements_pro.txt -r requirements_ui.txt
+python -m venv .venv
 ```
 
-### 3) Create the environment file
+The commands below use the virtual environment's Python directly, so PowerShell activation is not required.
+
+### 3. Install and launch the dashboard
 
 ```powershell
-copy .\env.example.txt .\.env
+.\.venv\Scripts\python.exe -m pip install -r requirements_ui.txt
+.\.venv\Scripts\python.exe jarvis_hud.py
 ```
 
-Then edit `.env` and add your values:
+This installs everything needed for the visual dashboard. Install the voice dependencies only if you want to start the assistant.
 
-```env
-JARVIS_USER_NAME=Your Name
-JARVIS_DEFAULT_CITY=Colombo
-ELEVENLABS_API_KEY=your_key_here
-ELEVENLABS_VOICE_ID=your_voice_id_here
-```
+## Try the controls
 
-### 4) Verify the UI is installed
+1. Wait for the boot animation to finish.
+2. Press **Ctrl+K** or click **COMMANDS**. Type a command, use **↑ / ↓**, and press **Enter**. Press **Escape** to dismiss the palette.
+3. In **Tasks**, enter a title and press **Enter** or click **ADD TASK**. Select a task and click **COMPLETE / REOPEN** to update it.
+4. Open **Activity** to search assistant events. An empty list is normal before activity has been recorded.
+5. Choose a **Focus Protocol** preset and click **START FOCUS**. Pause, resume, or reset the session whenever needed.
+6. Open **Notes**, write something, and click **SAVE NOTES**.
+7. Press **F11** for fullscreen. Click a quick-launch button to open its website.
+
+The command palette also exposes notes, focus timer controls, fullscreen, refresh, voice start/stop, and clearing the live feed. Selecting a command runs it; typing alone does not.
+
+### How the dashboard behaves
+
+- Task and activity panels refresh every two seconds. Unreadable task data is reported rather than overwritten; malformed activity lines are skipped.
+- Network graphs show host traffic in KB/s and scale independently. The first transfer rate appears after the second sample.
+- Focus sessions use elapsed time, support pause/resume, and announce completion in the live feed. Sessions reset when the app restarts.
+- Notes save only when you click **SAVE NOTES** or choose **Save** when closing. The exit prompt also lets you discard changes or cancel closing.
+- The reactor shows **STANDBY** when the voice assistant is stopped. Starting the HUD alone does not start microphone listening.
+
+## Optional voice assistant
+
+Install the additional dependencies in the same environment:
 
 ```powershell
-python -c "import PySide6; print('PySide6 OK')"
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt -r requirements_pro.txt -r requirements_ui.txt
 ```
 
-If that prints `PySide6 OK`, the GUI dependencies are available.
-
-### 5) Run the main Jarvis HUD
+If you do not already have a `.env` file, copy the example:
 
 ```powershell
-python .\jarvis_hud.py
+Copy-Item env.example.txt .env
 ```
 
-### 6) Optional: run the assistant logic separately
+Edit `.env` locally. Replace the example ElevenLabs key and voice ID if you want ElevenLabs speech, and check the microphone settings, including `JARVIS_INPUT_DEVICE`. Never commit real credentials.
+
+The assistant scripts load `.env`. The HUD itself reads profile settings from its process environment; it does not load `.env` directly. To customize the HUD before launching it in PowerShell:
 
 ```powershell
-python .\jarvis_agentic.py
+$env:JARVIS_USER_NAME = "Your Name"
+$env:JARVIS_DEFAULT_CITY = "Colombo"
+.\.venv\Scripts\python.exe jarvis_hud.py
 ```
 
-### 7) Optional: run the original clap-based assistant
+Click **START** in the dashboard to launch `jarvis_agentic.py`, or run it separately:
 
 ```powershell
-python .\jarvis.py
+.\.venv\Scripts\python.exe jarvis_agentic.py
 ```
 
-## Quick start
+Use **STOP** to terminate the assistant. Closing the HUD also stops the assistant process it launched.
 
-### Command center
+Microphone access, audio playback, service credentials, and some desktop automation depend on your operating system and device. Voice functionality has not been validated in the headless cloud environment. ElevenLabs may require a paid account; the local dashboard does not.
 
-The expanded dashboard also includes:
+## Linux and headless development
 
-- **Focus Protocol:** 25-minute focus, 50-minute deep work, and 5-minute break
-  presets, with pause, resume, reset, and a completion alert in the live feed.
-  Sessions run while the app is open and reset when it restarts.
-- **Notes:** a local scratchpad saved to `jarvis_data/scratchpad.txt`. Click
-  **SAVE NOTES** to persist changes; closing with unsaved notes prompts you to
-  save, discard, or cancel.
-- **Device Health:** disk usage, free space, operating system, and host uptime.
-- **Quick Launch:** buttons for ChatGPT, GitHub, and YouTube in your default browser.
-- **Fullscreen:** press `F11` or click the fullscreen button to toggle.
+For a desktop Linux session:
 
-The HUD now includes system radar on the left and Tasks / Activity tabs on the right.
-Press `Ctrl+K` or click **COMMANDS**, type to filter, use the arrow keys to select,
-then press Enter. Escape closes the palette. Commands run only when selected.
+```bash
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements_ui.txt
+.venv/bin/python jarvis_hud.py
+```
 
-In **Tasks**, enter a title and press Enter or click **ADD TASK**. Select a task and
-click **COMPLETE / REOPEN** to change its status. Changes persist across restarts;
-the panel refreshes every two seconds to pick up assistant updates. Invalid task
-data is reported rather than overwritten. Activity search is case insensitive,
-and malformed event lines are skipped. Telemetry and task controls work without
-the voice assistant or API credentials. Network graphs show host traffic in KB/s
-and scale independently; their first rate appears after the second sample.
-
-For Linux cloud development without a display:
+Without a display, Qt can run offscreen for development and testing:
 
 ```bash
 QT_QPA_PLATFORM=offscreen .venv/bin/python jarvis_hud.py
 ```
 
-Run the command center interaction tests:
+Offscreen mode does not display an interactive window in your browser. Use a desktop session to interact with the dashboard.
+
+Linux voice workflows also need PortAudio (for example, the `libportaudio2` system package on Debian/Ubuntu), audio devices, and the voice Python dependencies. GUI automation may need a graphical session.
+
+## Tests
+
+Windows:
+
+```powershell
+$env:QT_QPA_PLATFORM = "offscreen"
+.\.venv\Scripts\python.exe -m unittest -v test_command_center test_dashboard_tools
+Remove-Item Env:QT_QPA_PLATFORM
+```
+
+Linux/cloud:
 
 ```bash
 QT_QPA_PLATFORM=offscreen .venv/bin/python -m unittest -v test_command_center test_dashboard_tools
 ```
 
-### Windows launcher
+The 13 tests cover task persistence and error handling, activity filtering, command execution, telemetry calculations, timer behavior, note saving, fullscreen, and exit protection. The dashboard has also passed an offscreen boot and rendering check. These checks do not establish microphone or external voice-service readiness.
 
-If everything is already installed:
+## Project files and local data
 
-```powershell
-cd "C:\Python313\jarvis-main\jarvis-main"
-python .\jarvis_hud.py
+```text
+jarvis-desktop/
+├── jarvis_hud.py              # Main desktop application
+├── command_center.py         # Palette, telemetry, tasks, and activity widgets
+├── dashboard_tools.py        # Focus timer, scratchpad, and device health
+├── jarvis_agentic.py          # Optional assistant runtime
+├── jarvis_max.py              # Expanded assistant behavior
+├── jarvis_pro.py              # Voice assistant support
+├── jarvis.py                  # Original clap-based assistant
+├── requirements*.txt          # Dashboard and assistant dependencies
+├── test_command_center.py
+├── test_dashboard_tools.py
+├── env.example.txt            # Optional voice configuration template
+└── jarvis_data/               # Runtime data; created when needed
 ```
 
-## Important note
-
-The main visual app is `jarvis_hud.py`. If you want the premium desktop Jarvis interface, launch that file. The other scripts are supporting assistant variants and may be used for different behavior or testing.
-
-## Design direction
-
-This project is intentionally designed to feel like:
-
-- a premium AI assistant control panel
-- a futuristic sci-fi command center
-- a cinematic voice interface instead of a cluttered dashboard
-
-The goal is to keep the experience clean, elegant, and visually impressive while still being usable as a desktop assistant.
+Tasks are stored in `jarvis_data/tasks.json`, notes in `jarvis_data/scratchpad.txt`, and assistant events in `jarvis_data/activity.jsonl`. The assistant also uses this directory for memory and approvals. Back up data you want to keep. These files can contain personal information; review them before adding any runtime data to Git.
 
 ## Troubleshooting
 
-### GUI not opening
-
-```powershell
-python -c "import PySide6; print('PySide6 OK')"
-```
-
-If PySide6 is missing:
-
-```powershell
-python -m pip install -r requirements_ui.txt
-```
-
-### Audio or microphone not working
-
-- Check Windows microphone settings
-- Confirm the default input device is active
-- Retry after restarting the app
-
-### Missing modules
-
-```powershell
-python -m pip install -r requirements.txt -r requirements_pro.txt -r requirements_ui.txt
-```
+- **Missing PySide6 or psutil:** install `requirements_ui.txt` using the same Python executable you use to launch the app.
+- **No visible window:** unset `QT_QPA_PLATFORM` if it is set to `offscreen`, then launch from a desktop session.
+- **START exits immediately:** inspect the live feed, install the voice dependencies, and check audio devices and configuration.
+- **PortAudio library not found:** install your platform's PortAudio runtime before starting the voice assistant.
+- **Notes did not save:** read the status below the save button and check that `jarvis_data` is writable. Failed saves keep your edited text available.
+- **Empty activity:** events appear as the assistant records them; the panel does not generate sample activity.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## GitHub project note
-
-This repository is structured as a personal AI assistant / desktop HUD prototype and is ready to be extended with voice interactions, automation, workflows, and more advanced assistant features.
+[MIT](LICENSE)

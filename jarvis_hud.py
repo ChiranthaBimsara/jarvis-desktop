@@ -64,6 +64,8 @@ from PySide6.QtGui import (
     QPainterPath,
     QPen,
     QRadialGradient,
+    QKeySequence,
+    QShortcut,
 )
 from PySide6.QtWidgets import (
     QApplication,
@@ -84,6 +86,9 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from command_center import CommandPalette, OperationsPanel, SystemPanel
+from dashboard_tools import DeviceHealth, FocusTimer, Scratchpad
 
 try:
     import psutil
@@ -369,7 +374,7 @@ class CoreWidget(QWidget):
         p.drawText(label_rect, Qt.AlignCenter, "JARVIS")
 
         # state line
-        status = "ONLINE"
+        status = "STANDBY"
         if self.booting:
             status = "INITIALIZING"
         elif self.listening:
@@ -744,7 +749,7 @@ class JarvisHUD(QMainWindow):
                 color: #8ef6bc;
             }
 
-            QTextEdit {
+            QTextEdit, QPlainTextEdit {
                 background: rgba(3, 11, 18, 230);
                 border: 1px solid rgba(76, 152, 180, 160);
                 border-radius: 12px;
@@ -752,6 +757,67 @@ class JarvisHUD(QMainWindow):
                 font-family: Consolas;
                 font-size: 10px;
                 padding: 8px;
+            }
+
+            QLineEdit, QListWidget {
+                background: #05121c;
+                color: #c9f6ff;
+                border: 1px solid #235064;
+                border-radius: 8px;
+                padding: 8px;
+                selection-background-color: #12516b;
+            }
+
+            QLineEdit:focus, QListWidget:focus {
+                border: 1px solid #14d9ff;
+            }
+
+            QListWidget::item {
+                padding: 10px 4px;
+                border-bottom: 1px solid #102b38;
+            }
+
+            QListWidget::item:selected {
+                background: #103e53;
+                color: #ffffff;
+            }
+
+            QTabWidget::pane {
+                border: 1px solid #235064;
+                border-radius: 8px;
+            }
+
+            QTabBar::tab {
+                background: #06131d;
+                color: #78a9b7;
+                padding: 10px 18px;
+            }
+
+            QTabBar::tab:selected {
+                color: #14d9ff;
+                border-bottom: 2px solid #14d9ff;
+            }
+
+            QComboBox {
+                color: #c9f6ff;
+                background: #071b27;
+                border: 1px solid #235064;
+                border-radius: 6px;
+                padding: 5px 10px;
+            }
+
+            QProgressBar {
+                border: 1px solid #235064;
+                border-radius: 5px;
+                background: #05121c;
+                color: #c9f6ff;
+                text-align: center;
+                min-height: 18px;
+            }
+
+            QProgressBar::chunk {
+                background: #0878a0;
+                border-radius: 4px;
             }
 
             QScrollArea {
@@ -799,6 +865,13 @@ class JarvisHUD(QMainWindow):
         self.clock.setAlignment(Qt.AlignRight)
 
         header.addWidget(brand)
+        command_button = QPushButton("⌘ COMMANDS  ·  Ctrl+K")
+        command_button.clicked.connect(self.open_command_palette)
+        header.addWidget(command_button)
+        fullscreen = QPushButton("⛶  F11")
+        fullscreen.setToolTip("Toggle fullscreen")
+        fullscreen.clicked.connect(self.toggle_fullscreen)
+        header.addWidget(fullscreen)
         header.addStretch()
         header.addWidget(self.online_label)
         header.addSpacing(18)
@@ -809,8 +882,22 @@ class JarvisHUD(QMainWindow):
         body = QHBoxLayout()
         body.setSpacing(10)
 
+        self.system_panel = SystemPanel(psutil)
+        self.system_panel.setMinimumWidth(220)
+        self.system_panel.setMaximumWidth(300)
+        self.device_health = DeviceHealth(psutil, BASE_DIR)
+        self.system_panel.layout().insertWidget(5, self.device_health)
+        body.addWidget(self.system_panel)
+
         center = self.build_center_column()
         body.addWidget(center, 1)
+
+        self.operations = OperationsPanel(TASKS_FILE, ACTIVITY_FILE)
+        self.operations.setMinimumWidth(280)
+        self.operations.setMaximumWidth(380)
+        self.scratchpad = Scratchpad(DATA_DIR / "scratchpad.txt")
+        self.operations.addTab(self.scratchpad, "Notes")
+        body.addWidget(self.operations)
 
         root.addLayout(body, 1)
 
@@ -828,12 +915,69 @@ class JarvisHUD(QMainWindow):
         self.stop_btn.setObjectName("dangerButton")
         self.stop_btn.clicked.connect(self.stop_jarvis)
 
+        fl.addWidget(QLabel("QUICK LAUNCH"))
+        for title, url in (("CHATGPT", "https://chatgpt.com"),
+                           ("GITHUB", "https://github.com"),
+                           ("YOUTUBE", "https://www.youtube.com")):
+            button = QPushButton(title)
+            button.clicked.connect(lambda checked=False, target=url: open_url(target))
+            fl.addWidget(button)
         fl.addStretch()
         fl.addWidget(self.start_btn)
         fl.addWidget(self.stop_btn)
 
         footer.layout.addLayout(fl)
         root.addWidget(footer)
+
+        self.command_shortcut = QShortcut(QKeySequence("Ctrl+K"), self)
+        self.command_shortcut.activated.connect(self.open_command_palette)
+        self.fullscreen_shortcut = QShortcut(QKeySequence("F11"), self)
+        self.fullscreen_shortcut.activated.connect(self.toggle_fullscreen)
+
+    def toggle_fullscreen(self):
+        if self.isFullScreen():
+            self.showMaximized()
+        else:
+            self.showFullScreen()
+
+    def focus_notes(self):
+        self.operations.setCurrentWidget(self.scratchpad)
+        self.scratchpad.editor.setFocus()
+
+    def closeEvent(self, event):
+        if self.scratchpad.dirty:
+            answer = QMessageBox.question(
+                self, "Unsaved notes", "Save your scratchpad before closing?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                QMessageBox.Save,
+            )
+            if answer == QMessageBox.Cancel or (answer == QMessageBox.Save and not self.scratchpad.save()):
+                event.ignore()
+                return
+        if self.weather_worker and self.weather_worker.isRunning():
+            self.weather_worker.wait(12000)
+        if self.process.state() != QProcess.NotRunning:
+            self.process.terminate()
+            if not self.process.waitForFinished(2500):
+                self.process.kill()
+                self.process.waitForFinished(1000)
+        event.accept()
+
+    def open_command_palette(self):
+        self.stack.setCurrentWidget(self.dashboard)
+        palette = CommandPalette([
+            ("New task / Show tasks", self.operations.focus_tasks),
+            ("Search activity", self.operations.focus_activity),
+            ("Open scratchpad notes", self.focus_notes),
+            ("Start / pause focus timer", self.focus_timer.toggle_running),
+            ("Reset focus timer", self.focus_timer.reset),
+            ("Toggle fullscreen", self.toggle_fullscreen),
+            ("Refresh command center", self.operations.refresh),
+            ("Start Jarvis voice assistant", self.start_jarvis),
+            ("Stop Jarvis voice assistant", self.stop_jarvis),
+            ("Clear live feed", self.console.clear),
+        ], self)
+        palette.exec()
 
     # ------------------------------------------------------------------
 
@@ -919,10 +1063,10 @@ class JarvisHUD(QMainWindow):
 
         self.core = CoreWidget()
         self.core.clicked.connect(self.toggle_jarvis)
-        self.core.setMinimumSize(520, 520)
+        self.core.setMinimumSize(260, 260)
 
         self.wave = WaveformWidget()
-        self.wave.setMinimumHeight(70)
+        self.wave.setMinimumHeight(40)
 
         self.prompt_label = QLabel("HOW CAN I HELP YOU TODAY, SIR?")
         self.prompt_label.setAlignment(Qt.AlignCenter)
@@ -940,13 +1084,20 @@ class JarvisHUD(QMainWindow):
         console_frame = HudFrame("Live Feed")
         self.console = QTextEdit()
         self.console.setReadOnly(True)
-        self.console.setMinimumHeight(110)
+        self.console.setMinimumHeight(80)
         self.console.setStyleSheet("background: rgba(3,12,18,220); border: 1px solid rgba(91,170,210,110); border-radius: 12px;")
         console_frame.layout.addWidget(self.console)
 
         lay.addWidget(center_frame, 1)
+        self.focus_timer = FocusTimer()
+        self.focus_timer.completed.connect(self.focus_complete)
+        lay.addWidget(self.focus_timer)
         lay.addWidget(console_frame)
         return col
+
+    def focus_complete(self):
+        self.append_console("[FOCUS] Session complete. Take a break.")
+        QApplication.alert(self, 5000)
 
     # ------------------------------------------------------------------
 

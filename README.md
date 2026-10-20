@@ -26,6 +26,10 @@ This project is a personal desktop assistant prototype built to feel like a prem
 
 ## Features
 
+- Command palette (`Ctrl+K`) for task entry, activity search, refresh, voice controls, and clearing the live feed
+- System radar with CPU, RAM, download, and upload histories (60 samples, updated every 1.5 seconds)
+- Task controls to add, complete, and reopen tasks, persisted in `jarvis_data/tasks.json`
+- Searchable activity by text, event type, or status, showing the latest 500 events
 - Animated central JARVIS reactor core
 - Live waveform listening / responding effect
 - Dark futuristic premium HUD styling
@@ -111,6 +115,46 @@ python .\jarvis.py
 ```
 
 ## Quick start
+
+### Command center
+
+The expanded dashboard also includes:
+
+- **Focus Protocol:** 25-minute focus, 50-minute deep work, and 5-minute break
+  presets, with pause, resume, reset, and a completion alert in the live feed.
+  Sessions run while the app is open and reset when it restarts.
+- **Notes:** a local scratchpad saved to `jarvis_data/scratchpad.txt`. Click
+  **SAVE NOTES** to persist changes; closing with unsaved notes prompts you to
+  save, discard, or cancel.
+- **Device Health:** disk usage, free space, operating system, and host uptime.
+- **Quick Launch:** buttons for ChatGPT, GitHub, and YouTube in your default browser.
+- **Fullscreen:** press `F11` or click the fullscreen button to toggle.
+
+The HUD now includes system radar on the left and Tasks / Activity tabs on the right.
+Press `Ctrl+K` or click **COMMANDS**, type to filter, use the arrow keys to select,
+then press Enter. Escape closes the palette. Commands run only when selected.
+
+In **Tasks**, enter a title and press Enter or click **ADD TASK**. Select a task and
+click **COMPLETE / REOPEN** to change its status. Changes persist across restarts;
+the panel refreshes every two seconds to pick up assistant updates. Invalid task
+data is reported rather than overwritten. Activity search is case insensitive,
+and malformed event lines are skipped. Telemetry and task controls work without
+the voice assistant or API credentials. Network graphs show host traffic in KB/s
+and scale independently; their first rate appears after the second sample.
+
+For Linux cloud development without a display:
+
+```bash
+QT_QPA_PLATFORM=offscreen .venv/bin/python jarvis_hud.py
+```
+
+Run the command center interaction tests:
+
+```bash
+QT_QPA_PLATFORM=offscreen .venv/bin/python -m unittest -v test_command_center test_dashboard_tools
+```
+
+### Windows launcher
 
 If everything is already installed:
 

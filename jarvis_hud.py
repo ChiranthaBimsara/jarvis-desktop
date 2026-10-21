@@ -89,6 +89,7 @@ from PySide6.QtWidgets import (
 
 from command_center import CommandPalette, OperationsPanel, SystemPanel
 from dashboard_tools import DeviceHealth, FocusTimer, Scratchpad
+from personal_companion import PersonalCompanion
 
 try:
     import psutil
@@ -897,6 +898,10 @@ class JarvisHUD(QMainWindow):
         self.operations.setMaximumWidth(380)
         self.scratchpad = Scratchpad(DATA_DIR / "scratchpad.txt")
         self.operations.addTab(self.scratchpad, "Notes")
+        self.companion = PersonalCompanion(DATA_DIR / "companion.json", TASKS_FILE)
+        self.operations.addTab(self.companion, "For you")
+        self.companion.suggestion_ready.connect(self.companion_check_in)
+        self.operations.setCurrentWidget(self.companion)
         body.addWidget(self.operations)
 
         root.addLayout(body, 1)
@@ -944,6 +949,14 @@ class JarvisHUD(QMainWindow):
         self.operations.setCurrentWidget(self.scratchpad)
         self.scratchpad.editor.setFocus()
 
+    def focus_companion(self):
+        self.operations.setCurrentWidget(self.companion)
+        self.companion.refresh_briefing()
+        self.companion.memory_input.setFocus()
+
+    def companion_check_in(self, text):
+        self.append_console("[COMPANION] " + text)
+
     def closeEvent(self, event):
         if self.scratchpad.dirty:
             answer = QMessageBox.question(
@@ -966,6 +979,7 @@ class JarvisHUD(QMainWindow):
     def open_command_palette(self):
         self.stack.setCurrentWidget(self.dashboard)
         palette = CommandPalette([
+            ("My personal briefing / Remember a goal", self.focus_companion),
             ("New task / Show tasks", self.operations.focus_tasks),
             ("Search activity", self.operations.focus_activity),
             ("Open scratchpad notes", self.focus_notes),

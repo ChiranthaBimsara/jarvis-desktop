@@ -8,6 +8,7 @@ A sci-fi desktop command center built with Python and PySide6. Monitor your syst
 
 | Feature | What it does |
 | --- | --- |
+| Personal companion | Local memory, personal briefings, and optional gentle check-ins |
 | Animated HUD | Reactor animation, boot sequence, live clock, and assistant status |
 | Command palette | Search actions with `Ctrl+K`, select with arrow keys, and run with Enter |
 | System radar | CPU, RAM, download, and upload graphs with 60 samples, refreshed every 1.5 seconds |
@@ -72,6 +73,30 @@ The command palette also exposes notes, focus timer controls, fullscreen, refres
 - Notes save only when you click **SAVE NOTES** or choose **Save** when closing. The exit prompt also lets you discard changes or cancel closing.
 - The reactor shows **STANDBY** when the voice assistant is stopped. Starting the HUD alone does not start microphone listening.
 
+## Your personal companion
+
+Open **For you** to see a briefing based on your saved goals and open tasks.
+Choose **Goal**, **Preference**, or **About me**, enter a memory, and click
+**REMEMBER THIS**. Saved memories survive restarts. Select one and click
+**FORGET SELECTED** to remove it from companion storage.
+
+Check-ins are off by default. Enable them and choose a 15-, 30-, or 60-minute
+interval. A check-in refreshes your briefing and adds a message to the live feed;
+it does not open a popup or take actions. **SNOOZE 1H** pauses check-ins for an
+hour in the current session. Check-ins run only while Jarvis is open. You can also
+open your briefing from the `Ctrl+K` command palette.
+
+Memory and check-in settings are stored locally in `jarvis_data/companion.json`.
+This feature stores only what you explicitly enter. It does not collect browser,
+social-account, microphone, or screen activity. Keep this personal file out of
+public commits. Companion memories are separate from the voice assistant's memory.
+
+This first version uses local rules to reference your latest goal, preference,
+and first open task. It has no connected language model and does not infer your
+feelings, understand arbitrary preferences, or analyze Facebook data. An unreadable
+memory file is reported and protected from overwriting; task read failures are
+reported rather than presented as an empty task list.
+
 ## Optional voice assistant
 
 Install the additional dependencies in the same environment:
@@ -132,17 +157,17 @@ Windows:
 
 ```powershell
 $env:QT_QPA_PLATFORM = "offscreen"
-.\.venv\Scripts\python.exe -m unittest -v test_command_center test_dashboard_tools
+.\.venv\Scripts\python.exe -m unittest -v test_command_center test_dashboard_tools test_personal_companion
 Remove-Item Env:QT_QPA_PLATFORM
 ```
 
 Linux/cloud:
 
 ```bash
-QT_QPA_PLATFORM=offscreen .venv/bin/python -m unittest -v test_command_center test_dashboard_tools
+QT_QPA_PLATFORM=offscreen .venv/bin/python -m unittest -v test_command_center test_dashboard_tools test_personal_companion
 ```
 
-The 13 tests cover task persistence and error handling, activity filtering, command execution, telemetry calculations, timer behavior, note saving, fullscreen, and exit protection. The dashboard has also passed an offscreen boot and rendering check. These checks do not establish microphone or external voice-service readiness.
+The 19 tests cover task persistence and error handling, activity filtering, command execution, telemetry calculations, timer behavior, note saving, fullscreen, exit protection, personal memory, briefings, and check-in controls. The dashboard has also passed an offscreen boot and rendering check. These checks do not establish microphone or external voice-service readiness.
 
 ## Project files and local data
 
@@ -150,6 +175,7 @@ The 13 tests cover task persistence and error handling, activity filtering, comm
 jarvis-desktop/
 ├── jarvis_hud.py              # Main desktop application
 ├── command_center.py         # Palette, telemetry, tasks, and activity widgets
+├── personal_companion.py     # Local memory, briefings, and gentle check-ins
 ├── dashboard_tools.py        # Focus timer, scratchpad, and device health
 ├── jarvis_agentic.py          # Optional assistant runtime
 ├── jarvis_max.py              # Expanded assistant behavior

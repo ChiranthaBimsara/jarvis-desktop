@@ -8,6 +8,8 @@ A sci-fi desktop command center built with Python and PySide6. Monitor your syst
 
 | Feature | What it does |
 | --- | --- |
+| Screen assistance | Preview a screenshot and ask a local Ollama vision model for help |
+| Visual themes | Cyan, Amethyst, and Ember accent themes with glass-style panels |
 | Personal companion | Local memory, personal briefings, and optional gentle check-ins |
 | Animated HUD | Reactor animation, boot sequence, live clock, and assistant status |
 | Command palette | Search actions with `Ctrl+K`, select with arrow keys, and run with Enter |
@@ -72,6 +74,50 @@ The command palette also exposes notes, focus timer controls, fullscreen, refres
 - Focus sessions use elapsed time, support pause/resume, and announce completion in the live feed. Sessions reset when the app restarts.
 - Notes save only when you click **SAVE NOTES** or choose **Save** when closing. The exit prompt also lets you discard changes or cancel closing.
 - The reactor shows **STANDBY** when the voice assistant is stopped. Starting the HUD alone does not start microphone listening.
+
+## Screen assistance and premium visuals
+
+Click **SCREEN ASSIST** or search for screen assistance in `Ctrl+K`. In the
+vision workspace, select a display and click **CAPTURE DISPLAY**, or use
+**OPEN IMAGE** to choose a PNG, JPEG, WebP, or BMP. Jarvis temporarily hides its
+windows during capture. Desktop permissions may prevent capture; image import
+is available as a fallback.
+
+Review the preview, enter your question, and click **ANALYZE IMAGE**. Capture and
+import do not send anything automatically. You can ask about an error, a design,
+a chart, or the next step visible in a screenshot. Replies stream into the panel.
+The model describes the image; it cannot click, control your computer, or inspect
+anything beyond the image you shared.
+
+### Connect a local vision model
+
+Install [Ollama](https://ollama.com/) on the same computer as Jarvis, then install
+a vision-capable model. For example:
+
+```text
+ollama pull llava
+```
+
+Start Ollama (or run `ollama serve` if the service is not already running), enter
+`llava` in the workspace's **MODEL** field, and analyze your image. The app uses
+Ollama's streaming `/api/chat` endpoint at `127.0.0.1:11434`. Other locally installed
+vision models can be entered by name. Use a local model rather than a cloud model;
+model performance and hardware requirements depend on the model you choose.
+
+Images are kept in the workspace's memory, resized to a maximum of 1600 pixels
+per side, and submitted only when you click Analyze. **CLEAR IMAGE** clears the
+image and response. Jarvis does not save screenshots or analysis to disk, although
+your separately configured model service may have its own logging behavior.
+Cancellation stops further reading after the current network read finishes; it
+can take up to 30 seconds. Model answers can be wrong—verify important details.
+
+Use **THEME** in the header or **Change visual theme** in the command palette to
+cycle Cyan, Amethyst, and Ember. Themes change reactor and graph accents, panel
+borders, highlights, and hover treatments. Theme choice resets when Jarvis restarts.
+
+Image encoding, explicit sharing, streaming protocol handling, errors, cancellation,
+and theme integration are tested. Live model quality and physical display capture
+have not been validated in the cloud environment, which has no Ollama service.
 
 ## Your personal companion
 
@@ -157,17 +203,17 @@ Windows:
 
 ```powershell
 $env:QT_QPA_PLATFORM = "offscreen"
-.\.venv\Scripts\python.exe -m unittest -v test_command_center test_dashboard_tools test_personal_companion
+.\.venv\Scripts\python.exe -m unittest -v test_command_center test_dashboard_tools test_personal_companion test_screen_assist
 Remove-Item Env:QT_QPA_PLATFORM
 ```
 
 Linux/cloud:
 
 ```bash
-QT_QPA_PLATFORM=offscreen .venv/bin/python -m unittest -v test_command_center test_dashboard_tools test_personal_companion
+QT_QPA_PLATFORM=offscreen .venv/bin/python -m unittest -v test_command_center test_dashboard_tools test_personal_companion test_screen_assist
 ```
 
-The 19 tests cover task persistence and error handling, activity filtering, command execution, telemetry calculations, timer behavior, note saving, fullscreen, exit protection, personal memory, briefings, and check-in controls. The dashboard has also passed an offscreen boot and rendering check. These checks do not establish microphone or external voice-service readiness.
+The 24 tests cover task persistence and error handling, activity filtering, command execution, telemetry calculations, timer behavior, note saving, fullscreen, exit protection, personal memory, briefings, and check-in controls. The dashboard has also passed an offscreen boot and rendering check. These checks do not establish microphone or external voice-service readiness.
 
 ## Project files and local data
 
@@ -175,6 +221,7 @@ The 19 tests cover task persistence and error handling, activity filtering, comm
 jarvis-desktop/
 ├── jarvis_hud.py              # Main desktop application
 ├── command_center.py         # Palette, telemetry, tasks, and activity widgets
+├── screen_assist.py          # Explicit screenshot sharing and local vision analysis
 ├── personal_companion.py     # Local memory, briefings, and gentle check-ins
 ├── dashboard_tools.py        # Focus timer, scratchpad, and device health
 ├── jarvis_agentic.py          # Optional assistant runtime

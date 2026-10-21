@@ -90,6 +90,7 @@ from PySide6.QtWidgets import (
 from command_center import CommandPalette, OperationsPanel, SystemPanel
 from dashboard_tools import DeviceHealth, FocusTimer, Scratchpad
 from personal_companion import PersonalCompanion
+from screen_assist import ScreenAssistant
 
 try:
     import psutil
@@ -645,6 +646,9 @@ class JarvisHUD(QMainWindow):
 
         self.build_dashboard()
         self.apply_style()
+        self.base_style = self.styleSheet()
+        self.theme_index = 0
+        self.apply_visual_theme()
 
         # Timers
         self.clock_timer = QTimer(self)
@@ -869,6 +873,12 @@ class JarvisHUD(QMainWindow):
         command_button = QPushButton("⌘ COMMANDS  ·  Ctrl+K")
         command_button.clicked.connect(self.open_command_palette)
         header.addWidget(command_button)
+        vision_button = QPushButton("✦ SCREEN ASSIST")
+        vision_button.clicked.connect(self.open_screen_assistant)
+        header.addWidget(vision_button)
+        self.theme_button = QPushButton("THEME · CYAN")
+        self.theme_button.clicked.connect(self.cycle_theme)
+        header.addWidget(self.theme_button)
         fullscreen = QPushButton("⛶  F11")
         fullscreen.setToolTip("Toggle fullscreen")
         fullscreen.clicked.connect(self.toggle_fullscreen)
@@ -954,10 +964,55 @@ class JarvisHUD(QMainWindow):
         self.companion.refresh_briefing()
         self.companion.memory_input.setFocus()
 
+    def open_screen_assistant(self):
+        if not hasattr(self, "screen_assistant"):
+            self.screen_assistant = ScreenAssistant(self)
+        self.screen_assistant.show()
+        self.screen_assistant.raise_()
+        self.screen_assistant.activateWindow()
+
+    def cycle_theme(self):
+        self.theme_index = (self.theme_index + 1) % 3
+        self.apply_visual_theme()
+
+    def apply_visual_theme(self):
+        global CYAN, CYAN_2
+        name, accent, secondary = [
+            ("CYAN", "#14d9ff", "#00a8d8"),
+            ("AMETHYST", "#c09aff", "#9465de"),
+            ("EMBER", "#ffbd69", "#dd8c35"),
+        ][self.theme_index]
+        CYAN, CYAN_2 = QColor(accent), QColor(secondary)
+        style = self.base_style.replace("#14d9ff", accent).replace("#00a8d8", secondary)
+        style += f"""
+            QFrame#hudFrame {{
+                border: 1px solid {secondary};
+                border-radius: 22px;
+                background: qlineargradient(x1:0,y1:0,x2:1,y2:1,
+                    stop:0 #0c2331, stop:0.5 #081622, stop:1 #050e17);
+            }}
+            QPushButton:hover {{ border-color: {accent}; color: {accent}; }}
+            QLabel#panelTitle {{ color: {accent}; padding-bottom: 10px; }}
+            QLabel#visionPreview {{ background: #030a12; border: 1px solid {secondary}; border-radius: 16px; }}
+            QPushButton:disabled {{ color: #4c6878; border-color: #18303c; }}
+        """
+        self.setStyleSheet(style)
+        self.theme_button.setText(f"THEME · {name}")
+        for graph in (self.system_panel.cpu, self.system_panel.ram,
+                      self.system_panel.download, self.system_panel.upload):
+            graph.accent = QColor(accent)
+            graph.update()
+        self.core.update()
+
     def companion_check_in(self, text):
         self.append_console("[COMPANION] " + text)
 
     def closeEvent(self, event):
+        if hasattr(self, "screen_assistant") and (self.screen_assistant.busy() or self.screen_assistant.capturing):
+            self.screen_assistant.cancel()
+            self.screen_assistant.show()
+            event.ignore()
+            return
         if self.scratchpad.dirty:
             answer = QMessageBox.question(
                 self, "Unsaved notes", "Save your scratchpad before closing?",
@@ -980,6 +1035,8 @@ class JarvisHUD(QMainWindow):
         self.stack.setCurrentWidget(self.dashboard)
         palette = CommandPalette([
             ("My personal briefing / Remember a goal", self.focus_companion),
+            ("Screen assistance / Analyze screenshot", self.open_screen_assistant),
+            ("Change visual theme", self.cycle_theme),
             ("New task / Show tasks", self.operations.focus_tasks),
             ("Search activity", self.operations.focus_activity),
             ("Open scratchpad notes", self.focus_notes),

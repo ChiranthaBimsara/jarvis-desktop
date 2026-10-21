@@ -25,6 +25,7 @@ class Sparkline(QWidget):
         super().__init__(parent)
         self.title, self.unit, self.fixed_scale = title, unit, fixed_scale
         self.samples = deque(maxlen=60)
+        self.accent = QColor("#14d9ff")
         self.setMinimumHeight(100)
         self.setAccessibleName(title + " history")
 
@@ -55,7 +56,7 @@ class Sparkline(QWidget):
                 path.moveTo(x, y)
             else:
                 path.lineTo(x, y)
-        painter.setPen(QPen(QColor("#14d9ff"), 2))
+        painter.setPen(QPen(self.accent, 2))
         painter.drawPath(path)
 
 
